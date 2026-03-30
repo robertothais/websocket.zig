@@ -27,17 +27,10 @@ pub fn ThreadPool(comptime F: anytype) type {
     // []u8. But this ThreadPool is private and being used for 2 specific cases
     // that we control.
 
-    var fields: [ARG_COUNT]std.builtin.Type.StructField = undefined;
-    inline for (full_fields[0..ARG_COUNT], 0..) |field, index| fields[index] = field;
+    var arg_types: [ARG_COUNT]type = undefined;
+    inline for (full_fields[0..ARG_COUNT], 0..) |field, index| arg_types[index] = field.type;
 
-    const Args = comptime @Type(.{
-        .@"struct" = .{
-            .layout = .auto,
-            .is_tuple = true,
-            .fields = &fields,
-            .decls = &.{},
-        },
-    });
+    const Args = @Tuple(&arg_types);
 
     return struct {
         stopped: bool,
